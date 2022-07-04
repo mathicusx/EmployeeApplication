@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';  
 import { Employee } from 'src/app/models/employee.model';
-import { Company } from 'src/app/models/company.model';
 
 
 @Component({
