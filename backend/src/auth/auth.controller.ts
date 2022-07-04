@@ -13,7 +13,7 @@ export class AuthController {
 
     @Post('register')
     register() {
-        return 'I am registered';
+        return 'Registered';
     }
 
 }
