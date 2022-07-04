@@ -1,5 +1,5 @@
 
-<div class="container">
+<div class="container mt-5">
   <!-- Content here -->
   <div class="row">
     <div class="col">
@@ -13,11 +13,10 @@
     <div class="col">
       <h2>Employees</h2>
       <ul class="employees">
-        <li *ngFor="let employee of employees">
-          <button [class.selected]="employee === selectedEmployee" type="button" (click)="onSelect(employee)">
+        <li class="employeesList" *ngFor="let employee of employees">
+          <button id="employeeButton" [class.selected]="employee === selectedEmployee" type="button" (click)="onSelect(employee)">
             <span class="badge">{{employee.id}}</span>
             <span class="name">{{employee.name}}</span>
-            
           </button>
         </li>
       </ul>
