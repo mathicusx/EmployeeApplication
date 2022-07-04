@@ -1,5 +1,7 @@
-export class Job {
+export class Company {
+    companyName: string;
     department: string;
     position: string;
     salary: number;
+   
 }

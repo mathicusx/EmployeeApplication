@@ -1,9 +1,11 @@
-import {Job} from "./job.model"
+import {Company} from "./company.model"
 
 export class Employee {
-    id: number
+
+
+    id: number;
     name: string;
     email: string;
     address: string;
-    job: Job
+    company: Company;
 }
