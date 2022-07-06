@@ -1,7 +1,7 @@
 import { Employee } from './employee.entity';
-import { EMPLOYEE_REPOSITORY } from '../../core/constants/index';
+import { EMPLOYEES_REPOSITORY } from '../../core/constants/index';
 
 export const employeeProviders = [{
-    provide: EMPLOYEE_REPOSITORY,
+    provide: EMPLOYEES_REPOSITORY,
     useValue: Employee,
 }];
