@@ -1,26 +1,32 @@
-import { Controller, Post, UseGuards, Request, Body } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { Controller, Post, Body, HttpException, HttpStatus, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { UserDto } from '../user/dto/user.dto';
-import { DoesUserExist } from 'src/core/guards/doesUserExists';
+// import { DoesUserExist } from 'src/core/guards/doesUserExists';
+import { CreateUserDto } from '../user/dto/createUser.dto';
+import { RegistrationStatus } from './interfaces/registration.status.interface';
+import { LoginUserDto } from '../user/dto/loginUser.dto';
+import { LoginStatus } from './interfaces/login.status.interface';
 
 @Controller('auth')
 export class AuthController {
     
-    constructor(private authService: AuthService){}
+    constructor(private readonly authService: AuthService){}
 
    // @UseGuards(AuthGuard('local'))
-    @Post('login')
-    async login(@Request() req) {
-        return await this.authService.login(req.user);
+   
+
+   @Post('register')
+    public async register(@Body() createUser: CreateUserDto): Promise<RegistrationStatus>{
+        const result: RegistrationStatus = await this.authService.register(createUser)
+        if (!result.success){
+            throw new HttpException(result.message, HttpStatus.BAD_REQUEST);
+        }
+        return result;
     }
 
-    @UseGuards(DoesUserExist)
-    @Post('signup')
-    async signUp(@Body() user: UserDto) {
-        console.log(user)
-        return await this.authService.create(user);
-        
+    @Post('login')
+    public async login(@Body() loginUser: LoginUserDto): Promise<LoginStatus>{
+        return await this.authService.login(loginUser);
     }
+    
 
 }

@@ -1,12 +1,9 @@
-import { IsEmail, IsNotEmpty, MinLength } from "class-validator";
+import { IsEmail,IsNotEmpty} from "class-validator";
 
-export class UserDto {
+export class UserDto {  
+    @IsNotEmpty()  username: string;
+    @IsNotEmpty()  @IsEmail()  email: string;
 
-    @IsNotEmpty()
-    @IsEmail()
-    readonly email: string;
-
-    @IsNotEmpty()
-    @MinLength(6)
-    readonly password: string;
+    // excluded password. 
+    //because we never want to return the stored password data to the user as it is bad practice.
 }
