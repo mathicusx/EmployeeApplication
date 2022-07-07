@@ -1,7 +1,8 @@
-import { Table, Column, Model, DataType, HasMany, Unique, CreatedAt, UpdatedAt, DeletedAt} from 'sequelize-typescript';
-import { Employee } from '../employee/employee.entity';
+import { Table, Column, Model, DataType, HasMany, CreatedAt, UpdatedAt, DeletedAt, Unique} from 'sequelize-typescript';
 
-@Table
+@Table({
+    tableName: 'company'
+})
 export class Company extends Model<Company> {
     @Column({
         type: DataType.UUID,
@@ -11,28 +12,16 @@ export class Company extends Model<Company> {
     id: string;
 
     @Unique
-    @Column({
-        type: DataType.STRING,
-        allowNull: false,
-    })
+    @Column
     name: string;
 
-    @Column({
-        type: DataType.TEXT,
-        allowNull: false,
-    })
+    @Column
     department: string;
 
-    @Column({
-        type: DataType.STRING,
-        allowNull: false,
-    })
+    @Column
     position: string;
 
-    @Column({
-        type: DataType.INTEGER,
-        allowNull:false,
-    })
+    @Column
     salary: number;
 
     @CreatedAt
@@ -47,6 +36,4 @@ export class Company extends Model<Company> {
     @Column({ field: 'deleted_at' })
     deletedAt: Date;
 
-    @HasMany(() => Employee)
-    employees: Employee[];
 }

@@ -23,7 +23,7 @@ export const databaseProviders = [{
            config = databaseConfig.development;
         }
         const sequelize = new Sequelize(config);
-        sequelize.addModels([Employee, UserEntity, Company]);
+        sequelize.addModels([Employee, UserEntity,]);
         await sequelize.sync();
         return sequelize;
     },

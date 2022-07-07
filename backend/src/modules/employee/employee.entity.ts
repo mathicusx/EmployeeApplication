@@ -1,24 +1,17 @@
-import { Table, Column, Model, ForeignKey, BelongsTo, DataType, PrimaryKey, AutoIncrement, DeletedAt, UpdatedAt, CreatedAt} from "sequelize-typescript";
-import { Company } from "src/modules/company/company.entity";
+import { Table, Column, Model,DataType, PrimaryKey, AutoIncrement, DeletedAt, UpdatedAt, CreatedAt, IsEmail, Unique} from "sequelize-typescript";
 
-@Table 
+@Table({
+    tableName: 'employee',
+})
 export class Employee extends Model<Employee> {
-    @PrimaryKey
-    @AutoIncrement
-    @Column(DataType.BIGINT)
-    id: number;
-
-    @Column({
-        type: DataType.STRING,
-        allowNull: false,
-    })
+  
+    @Unique
+    @Column
     name: string
 
-    @Column({
-        type: DataType.STRING,
-        unique: true,
-        allowNull: false,
-    })
+    @Unique
+    @IsEmail
+    @Column
     email: string
     
     @Column({
@@ -26,6 +19,20 @@ export class Employee extends Model<Employee> {
         allowNull: false,
     })
     address: string
+
+    @Column
+    company: string;
+
+    @Column
+    department: string;
+
+    @Column
+    position: string;
+
+    @Column
+    salary: number;
+    
+
 
     @CreatedAt
     @Column({ field: 'created_at' })
@@ -39,14 +46,4 @@ export class Employee extends Model<Employee> {
     @Column({ field: 'deleted_at' })
     deletedAt: Date;
 
-    @ForeignKey(() => Company)
-    @Column({
-        type: DataType.INTEGER,
-        allowNull: false,
-        field: 'company_id'
-    })
-    companyId: string;
-
-    @BelongsTo(() => Company)
-    company: Company;
 }

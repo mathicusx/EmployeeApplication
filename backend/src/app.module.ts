@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import * as dotenv from 'dotenv';
 
-import { AuthModule } from './modules/auth/auth.module';
 import { EmployeeModule } from './modules/employee/employee.module';
 import { UserModule } from './modules/user/user.module';
 
@@ -15,7 +14,6 @@ dotenv.config({
 @Module({
   imports: [
     DatabaseModule,
-     AuthModule,
      UserModule,
      EmployeeModule,
      CompanyModule,

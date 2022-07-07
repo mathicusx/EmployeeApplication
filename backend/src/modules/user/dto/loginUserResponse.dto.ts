@@ -1,0 +1,12 @@
+import { UserEntity as User } from "../user.entity";
+import { UserDto } from "./user.dto";
+
+export class UserLoginResponseDto extends UserDto {
+    token: string;
+
+    constructor(user: User, token?: string){
+        super(user);
+        this.token = token
+    }
+
+}
