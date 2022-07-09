@@ -5,6 +5,7 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   
   const app = await NestFactory.create(AppModule);
+  app.enableCors();
   // global endpoints prefix
   app.setGlobalPrefix('api/')
   // handle all user input validation globally

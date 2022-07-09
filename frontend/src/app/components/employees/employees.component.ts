@@ -1,8 +1,8 @@
 import { Component, OnInit} from '@angular/core';
 
-import { Employee } from 'src/app/models/employee.model';
+import { Employee } from 'src/app/_models/employee.model';
 
-import { EMPLOYEES } from 'src/app/models/mock-employees.model';
+import { EMPLOYEES } from 'src/app/_models/mock-employees.model';
 
 @Component({
   selector: 'app-employees',
