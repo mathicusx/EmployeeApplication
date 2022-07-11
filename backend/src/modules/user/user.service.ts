@@ -1,28 +1,32 @@
 import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common';
-import { UserEntity as User } from './user.entity';
+import { UserEntity as User} from './user.entity';
 import { UserDto } from './dto/user.dto';
 import * as bcrypt from 'bcrypt';
-import { sign } from 'jsonwebtoken';
 import { CreateUserDto } from './dto/createUser.dto';
 import { USERS_REPOSITORY } from 'src/core/constants';
 import { ConfigService } from '@nestjs/config';
-import {UserLoginResponseDto } from './dto/loginUserResponse.dto';
-import { JwtPayload } from './auth/jwt.payload.model';
 import { LoginUserRequestDto } from './dto/loginUserRequest.dto';
+import { JwtService } from '@nestjs/jwt';
+import { UserLoginResponseDto } from './dto/loginUserResponse.dto';
 
 
 
  @Injectable()
  export class UserService {
   private readonly jwtPrivateKey: string;
+  private readonly refreshJwtPrivateKey: string;
    constructor(
     @Inject(USERS_REPOSITORY)
      private readonly usersRepository: typeof User,
-     private readonly configService: ConfigService
+     private readonly configService: ConfigService,
+     private readonly jwtService: JwtService
   ) {
     this.jwtPrivateKey = process.env.JWT_PRIVATE_KEY;
+    this.refreshJwtPrivateKey = process.env.REFRESH_JWT_PRIVATE_KEY;
   }
   
+
+
   async findAll() {
     const users = await this.usersRepository.findAll<User>();
     return users.map(user => new UserDto(user));
@@ -42,29 +46,30 @@ import { LoginUserRequestDto } from './dto/loginUserRequest.dto';
     });
   }
 
-  async create(createUserDto:CreateUserDto){
-    try {
-      const user = new User();
-      user.email = createUserDto.email;
-      
-      const salt = await bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(createUserDto.password, salt);
+  async register( createUserDto:CreateUserDto ){
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(createUserDto.password, salt)
 
-      const userData = await user.save();
+      const user = await this.usersRepository.create({
+        email: createUserDto.email,
+        password: hashedPassword,
+      }).catch(
+        (err) => {
+          if(err) {
+            throw new HttpException(
+                    `Employee with this value '${err.errors[0].value}' already exists`,
+                    HttpStatus.CONFLICT
+               );
+          }
+          return user;
+        }
+      )
 
-      // auto login on register by returning a token
-      const token = await this.signToken(userData);
+      const tokens = await this.signToken(user.id, user.email);
+      await this.updateRtHash(user.id, tokens.refreshToken);
 
-      return new UserLoginResponseDto(userData, token)
-    } catch (err) {
-      if(err.original.constraint === 'user_email_key'){
-        throw new HttpException(
-          `User with Email '${err.errors[0].value}' already exists`,
-          HttpStatus.CONFLICT
-        );
-      }
-      throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+      return tokens;
+  
   }
 
   async login(loginUserRequestDto:LoginUserRequestDto){
@@ -86,20 +91,73 @@ import { LoginUserRequestDto } from './dto/loginUserRequest.dto';
       );
     }
 
-    const token = await this.signToken(user);
-    return new UserLoginResponseDto(user, token);
+    const tokens = await this.signToken(user.id, user.email);
+    await this.updateRtHash(user.id, tokens.refreshToken);
+    return tokens;
+  }
+
+  async logout(id: string){
+  const user = await this.usersRepository.findByPk<User>(id);
+  if(user.hashedRefreshToken !== null){
+    user.hashedRefreshToken = null
+  }
+   return await user.save();
   }
 
   async delete(id: string) {
     const user = await this.usersRepository.findByPk<User>(id);
-    await user.destroy();
-    return new UserDto(user);
+    return await user.destroy();
   }
 
-  async signToken(user: User) {
-    const payload: JwtPayload = {
-      email: user.email
+  async signToken(id: string, email: string): Promise<UserLoginResponseDto> {
+    const[accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(
+        {
+        id: id,
+        email: email,
+        },
+        {
+        secret: process.env.JWT_PRIVATE_KEY,
+        expiresIn: process.env.TOKEN_EXPIRATION,
+        }),
+      this.jwtService.signAsync({
+        id: id,
+        email: email,
+      },
+      {
+        secret: process.env.REFRESH_JWT_PRIVATE_KEY,
+        expiresIn: process.env.REFRESH_TOKEN_EXPIRATION,
+      }),
+    ]);
+
+    return {
+      accessToken: accessToken,
+      refreshToken: refreshToken,
     };
-    return sign(payload, this.jwtPrivateKey, {});
+
     }
+
+  async updateRtHash (id: string, refreshToken: string){
+    const hash = await bcrypt.hash(refreshToken, 10);
+    const user = await this.usersRepository.findByPk<User>(id)
+    user.hashedRefreshToken = hash;
+    await user.save();
+  }
+
+  async refreshTokens(id: string){
+    const user = await this.usersRepository.findByPk<User>(id);
+    if(!user){
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    const tokens = await this.signToken(user.id, user.email);
+    await this.updateRtHash(user.id, tokens.refreshToken);
+
+     const refreshTokenMatches = bcrypt.compare(tokens.refreshToken, user.hashedRefreshToken);
+    if(!refreshTokenMatches){
+      throw new HttpException('Credentials does not match', HttpStatus.BAD_REQUEST);
+    }
+  
+    return tokens;
+  }
   }

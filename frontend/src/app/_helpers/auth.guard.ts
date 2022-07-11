@@ -12,7 +12,8 @@ export class AuthGuard implements CanActivate{
     canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot){
         const user = this.authService.userValue;
         if(user?.token) {
-            // user is authorized so we return true
+            // check if we have user token.
+            // if we have user token that means user is authorized so we return true;
             return true;
         }
         

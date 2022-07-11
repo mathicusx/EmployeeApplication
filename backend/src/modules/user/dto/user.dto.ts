@@ -7,9 +7,13 @@ export class UserDto {
 
     @IsNotEmpty()  @IsEmail()  email: string;
 
+    hashedRefreshToken: string;
+
+
     constructor(user: User){
         this.id = user.id;
         this.email = user.email
+        this.hashedRefreshToken = user.hashedRefreshToken
     }
     // excluded password. 
     //because we never want to return the stored password data to the user as it is bad practice.
