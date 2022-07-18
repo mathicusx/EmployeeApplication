@@ -1,57 +1,47 @@
-import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common';
-import { UserEntity as User} from './user.entity';
-import { UserDto } from './dto/user.dto';
-import * as bcrypt from 'bcrypt';
-import { CreateUserDto } from './dto/createUser.dto';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
+
 import { USERS_REPOSITORY } from 'src/core/constants';
-import { ConfigService } from '@nestjs/config';
-import { LoginUserRequestDto } from './dto/loginUserRequest.dto';
-import { JwtService } from '@nestjs/jwt';
-import { UserLoginResponseDto } from './dto/loginUserResponse.dto';
+import { UserEntity as User } from './user.entity';
+import { LoginDto } from './auth/dto/login-dto';
+import { compare, genSalt, hash } from 'bcrypt';
 
-
-
- @Injectable()
- export class UserService {
-  private readonly jwtPrivateKey: string;
-  private readonly refreshJwtPrivateKey: string;
-   constructor(
+@Injectable()
+export class UserService {
+  private readonly logger = new Logger('UserService');
+  constructor(
     @Inject(USERS_REPOSITORY)
-     private readonly usersRepository: typeof User,
-     private readonly configService: ConfigService,
-     private readonly jwtService: JwtService
-  ) {
-    this.jwtPrivateKey = process.env.JWT_PRIVATE_KEY;
-    this.refreshJwtPrivateKey = process.env.REFRESH_JWT_PRIVATE_KEY;
-  }
-  
+    private readonly usersRepository: typeof User,
+  ) {}
+  async login(loginObject: LoginDto): Promise<User> {
+    const { email, password } = loginObject;
 
+    const user = await this.usersRepository.findOne({ where: { email } });
 
-  async findAll() {
-    const users = await this.usersRepository.findAll<User>();
-    return users.map(user => new UserDto(user));
-  }
-
-  async getUser(id: string) {
-    const user = await this.usersRepository.findByPk<User>(id);
-    if(!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    if (!user) {
+      return Promise.resolve(null);
     }
-    return new UserDto(user);
+
+    const isEqual = await compare(password, user.password);
+
+    if (!isEqual) {
+      throw new HttpException('Invalid Credentials', HttpStatus.BAD_REQUEST);
+    }
+
+    return user;
   }
 
-  async getUserByEmail(email: string){
-    return await this.usersRepository.findOne<User>({
-      where: { email }
-    });
-  }
-
-  async register( createUserDto:CreateUserDto ){
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(createUserDto.password, salt)
+  async register(loginDto: LoginDto): Promise<any> {
+    const salt = await genSalt(10);
+    const hashedPassword = await hash(loginDto.password, salt)
 
       const user = await this.usersRepository.create({
-        email: createUserDto.email,
+        email: loginDto.email,
         password: hashedPassword,
       }).catch(
         (err) => {
@@ -63,101 +53,38 @@ import { UserLoginResponseDto } from './dto/loginUserResponse.dto';
           }
           return user;
         }
-      )
-
-      const tokens = await this.signToken(user.id, user.email);
-      await this.updateRtHash(user.id, tokens.refreshToken);
-
-      return tokens;
-  
-  }
-
-  async login(loginUserRequestDto:LoginUserRequestDto){
-    const email = loginUserRequestDto.email;
-    const password = loginUserRequestDto.password;
-
-    const user = await this.getUserByEmail(email)
-    if(!user){
-      throw new HttpException(
-        'Wrong Email',
-        HttpStatus.BAD_REQUEST,
       );
+      return loginDto;
+    // const { email, password } = user;
+
+    // const newUser = new User();
+    // newUser.email = email;
+    // newUser.password = await this.hashPassword(password);
+
+    // try {
+    //   const result = await this.usersRepository.create(newUser);
+    //   return result.toJSON();
+    // } catch (error) {
+    //   throw error;
+    // }
+  }
+
+  protected async hashPassword(password: string): Promise<string> {
+    const salt = await genSalt(10);
+    const hashedPassword = await hash(password, salt);
+
+    return hashedPassword;
+  }
+
+  async userExists(id: string): Promise<User> {
+    try {
+      return this.usersRepository.findByPk(id);
+    } catch (error) {
+      Logger.error(error);
+      return null;
     }
-    const isEqual = await bcrypt.compare(password, user.password);
-    if(!isEqual){
-      throw new HttpException(
-        'Wrong Password',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    const tokens = await this.signToken(user.id, user.email);
-    await this.updateRtHash(user.id, tokens.refreshToken);
-    return tokens;
   }
-
-  async logout(id: string){
-  const user = await this.usersRepository.findByPk<User>(id);
-  if(user.hashedRefreshToken !== null){
-    user.hashedRefreshToken = null
+  async findUserByEmail(email: string){
+    return this.usersRepository.findOne({where: {email}});
   }
-   return await user.save();
-  }
-
-  async delete(id: string) {
-    const user = await this.usersRepository.findByPk<User>(id);
-    return await user.destroy();
-  }
-
-  async signToken(id: string, email: string): Promise<UserLoginResponseDto> {
-    const[accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync(
-        {
-        id: id,
-        email: email,
-        },
-        {
-        secret: process.env.JWT_PRIVATE_KEY,
-        expiresIn: process.env.TOKEN_EXPIRATION,
-        }),
-      this.jwtService.signAsync({
-        id: id,
-        email: email,
-      },
-      {
-        secret: process.env.REFRESH_JWT_PRIVATE_KEY,
-        expiresIn: process.env.REFRESH_TOKEN_EXPIRATION,
-      }),
-    ]);
-
-    return {
-      accessToken: accessToken,
-      refreshToken: refreshToken,
-    };
-
-    }
-
-  async updateRtHash (id: string, refreshToken: string){
-    const hash = await bcrypt.hash(refreshToken, 10);
-    const user = await this.usersRepository.findByPk<User>(id)
-    user.hashedRefreshToken = hash;
-    await user.save();
-  }
-
-  async refreshTokens(id: string){
-    const user = await this.usersRepository.findByPk<User>(id);
-    if(!user){
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    }
-
-    const tokens = await this.signToken(user.id, user.email);
-    await this.updateRtHash(user.id, tokens.refreshToken);
-
-     const refreshTokenMatches = bcrypt.compare(tokens.refreshToken, user.hashedRefreshToken);
-    if(!refreshTokenMatches){
-      throw new HttpException('Credentials does not match', HttpStatus.BAD_REQUEST);
-    }
-  
-    return tokens;
-  }
-  }
+}

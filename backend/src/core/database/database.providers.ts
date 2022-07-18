@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize-typescript';
 import { Employee } from 'src/modules/employee/employee.entity';
+import { RefreshToken } from 'src/modules/user/auth/refresh.token.entity';
 import { UserEntity } from 'src/modules/user/user.entity';
 import { SEQUELIZE, DEVELOPMENT, TEST, PRODUCTION } from '../constants';
 import { databaseConfig } from './config/database.config';
@@ -22,7 +23,7 @@ export const databaseProviders = [{
            config = databaseConfig.development;
         }
         const sequelize = new Sequelize(config);
-        sequelize.addModels([Employee, UserEntity,]);
+        sequelize.addModels([Employee, UserEntity,RefreshToken]);
         await sequelize.sync();
         return sequelize;
     },

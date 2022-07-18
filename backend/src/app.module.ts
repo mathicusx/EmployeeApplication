@@ -7,6 +7,7 @@ import { UserModule } from './modules/user/user.module';
 import { CompanyModule } from './modules/company/company.module';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './core/database/database.module';
+import { AuthModule } from './modules/user/auth/auth.module';
 
 
 dotenv.config({
@@ -15,6 +16,7 @@ dotenv.config({
   imports: [
     DatabaseModule,
      UserModule,
+     AuthModule,
      EmployeeModule,
      CompanyModule,
      ConfigModule.forRoot({ isGlobal: true}),
