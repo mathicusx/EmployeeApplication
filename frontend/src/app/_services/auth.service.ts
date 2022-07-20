@@ -13,21 +13,21 @@ import { HttpClient } from '@angular/common/http';
 export class AuthService {
   private userSubject: BehaviorSubject<User | null>;
   public user: Observable<User | null>;
-  
 
   constructor(
     private router: Router,
-    private httpClient: HttpClient,
     private apiService: ApiService,
   ){
-    this.userSubject = new BehaviorSubject<User | null>(JSON.parse(localStorage.getItem('user') || '{}'));
+    this.userSubject = new BehaviorSubject<User | null >(JSON.parse(localStorage.getItem('user')!));
     this.user = this.userSubject.asObservable();
   }
 
   public get userValue(): User | null{
-    if(this.userSubject.value?.token !== 'undefined')
-    console.log(this.userSubject.value?.token);
-      return this.userSubject.value;
+    if(this.userSubject.value?.accessToken !== 'undefined'){
+            return this.userSubject.value;
+
+    }
+    return null
     
     
   }
@@ -37,7 +37,6 @@ export class AuthService {
     .pipe(map(user => {
       localStorage.setItem('user', JSON.stringify(user));
       this.userSubject.next(user);
-      console.log(user.token);
       return user;
     }));
   }

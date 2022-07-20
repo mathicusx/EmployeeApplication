@@ -25,46 +25,12 @@ export class ApiService {
     // USER API REQUESTS
 
     loginRequest(email: string, password: string): Observable<any>{
-        const url = this.apiEndpoint('users/login');
+        const url = this.apiEndpoint('auth/login');
 
         return  this.httpService.post<any>(url, {
             email, password
         });
     }
-
-  
-
-    // loginRequest(url: any, payload: any): Observable<any> {
-    //     return this.httpService.post(`${this.baseUrl}${url}`, payload);
-    // }
-
-    // Get Employee Data 
-    // getEmployees(url: any, payload: any): Observable<any> {
-    //     const url = $
-    //     return this.httpService.get(`${this.baseUrl}${url}`, payload);
-    // }
-    // // CREATE EMPLOYEE
-    // createEmployee(url: any, data: any): Observable<any> {
-    //     return this.httpService.post(`${this.baseUrl}${url}`, data);
-    // }
-
-    // // UPDATE EMPLOYEE
-    // updateEmployee(data: any, url: any, id:any): Observable<any> {
-    //     let ids = id;
-    //     return this.httpService.get(`${this.baseUrl}${url}/${ids}`);
-    // }
-
-    // // REMOVE EMPLOYEE
-    // removeEmployee(id: any, url: any): Observable<any> {
-    //     let ids = id;
-    //     return this.httpService.delete(`${this.baseUrl}${url}/${ids}`);
-    // }
-
-    // // GET EMPLOYEE BY ID 
-    // getEmployee(id: any, url: any): Observable<any> {
-    //     let ids = id;
-    //     return this.httpService.get(`${this.baseUrl}${url}/${ids}`);
-    // }
 
     
 }

@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize-typescript';
+import { RefreshToken } from 'src/modules/auth/refresh.token.entity';
 import { Employee } from 'src/modules/employee/employee.entity';
-import { RefreshToken } from 'src/modules/user/auth/refresh.token.entity';
 import { UserEntity } from 'src/modules/user/user.entity';
 import { SEQUELIZE, DEVELOPMENT, TEST, PRODUCTION } from '../constants';
 import { databaseConfig } from './config/database.config';

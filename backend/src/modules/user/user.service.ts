@@ -8,8 +8,9 @@ import {
 
 import { USERS_REPOSITORY } from 'src/core/constants';
 import { UserEntity as User } from './user.entity';
-import { LoginDto } from './auth/dto/login-dto';
 import { compare, genSalt, hash } from 'bcrypt';
+import { UserDto } from './dto/user.dto';
+import { LoginDto } from '../auth/dto/login-dto';
 
 @Injectable()
 export class UserService {
@@ -55,18 +56,7 @@ export class UserService {
         }
       );
       return loginDto;
-    // const { email, password } = user;
-
-    // const newUser = new User();
-    // newUser.email = email;
-    // newUser.password = await this.hashPassword(password);
-
-    // try {
-    //   const result = await this.usersRepository.create(newUser);
-    //   return result.toJSON();
-    // } catch (error) {
-    //   throw error;
-    // }
+   
   }
 
   protected async hashPassword(password: string): Promise<string> {
@@ -86,5 +76,16 @@ export class UserService {
   }
   async findUserByEmail(email: string){
     return this.usersRepository.findOne({where: {email}});
+  }
+  async getAll(){
+    const users = await this.usersRepository.findAll<User>();
+    return users.map(user => new UserDto(user));
+  }
+  async findOne(id: number){
+    const user = await this.usersRepository.findByPk(id);
+    if(!user) {
+      throw new HttpException('User was not Found', HttpStatus.NOT_FOUND)
+    }
+    return new UserDto(user);
   }
 }

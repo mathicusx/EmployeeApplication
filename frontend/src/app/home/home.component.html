@@ -1,1 +1,10 @@
-<p>home works!</p>
+<div class="card mt-4">
+    <h1 class="card-header">You're logged in!</h1>
+    <div class="card-body">
+        <h2>Users from Api</h2>
+        <div *ngIf="loading" class="spinner-border spinner-border-sm"></div>
+        <ul *ngIf="users">
+            <li *ngFor="let user of users">{{user.email}}</li>
+        </ul>
+    </div>
+    </div>

@@ -80,6 +80,5 @@ export class EmployeesService {
     return employee;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
  
 }

@@ -1,4 +1,4 @@
-import { Table, Column, Model,DataType, DeletedAt, UpdatedAt, CreatedAt, IsEmail, Unique} from "sequelize-typescript";
+import { Table, Column, Model,DataType, IsEmail, Unique} from "sequelize-typescript";
 
 @Table({
     tableName: 'employee',

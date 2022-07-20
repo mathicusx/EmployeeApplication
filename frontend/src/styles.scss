@@ -1,4 +1,14 @@
-/* You can add global styles to this file, and also import other style files */
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+body{
+    padding: 20px;
+}
+
+.form-control.ng-touched.ng-invalid{
+    border: 2px solid 
+red;
+}
+
+.logout:hover{
+    cursor: pointer;
+}

@@ -1,18 +1,34 @@
 import {
   Body,
   Controller,
+  Get,
   HttpException,
   HttpStatus,
   Logger,
+  Param,
   Post,
+  UseGuards,
 } from '@nestjs/common';
-import { LoginDto } from './auth/dto/login-dto';
+import { AuthGuard } from '@nestjs/passport';
+import { LoginDto } from '../auth/dto/login-dto';
+import { UserDto } from './dto/user.dto';
 import { UserEntity as User } from './user.entity';
 import { UserService } from './user.service';
 
 @Controller('user')
 export class UsersController {
   constructor(private readonly userService: UserService) {}
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get()
+  async getAll(): Promise<UserDto[]>{
+    return this.userService.getAll();
+  }
+
+  @Get(':id')
+  async findOne(@Param('id')id: number): Promise<UserDto>{
+    return this.userService.findOne(id);
+  }
 
   @Post('register')
   async register(@Body() loginDto: LoginDto): Promise<User> {

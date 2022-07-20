@@ -8,7 +8,6 @@ import { Alert, AlertType } from '../_models/alert.model';
 export class AlertsService {
 private subject = new Subject<Alert>();
 private defaultAlert = 'default-alert'
-private keepAfterRouteChange = false;
 
 // enable subscribing to alert observable
 onAlert(id = this.defaultAlert): Observable<Alert> {
