@@ -12,10 +12,9 @@ import { HomeComponent } from './home/home.component';
 import { AlertsComponent } from './_component/alerts.component';
 import { LoginComponent } from './_component/login.component';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { JwtInterceptor } from './_helpers/jwt.interceptor';
-import { ErrorInterceptor } from './_helpers/error.interceptor';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
-import { AuthGuard } from './_helpers/auth.guard';
+import { EmployeesModule } from './employees/employees.module';
+import { TokensInterceptor } from './_helpers/tokens.interceptor';
 
 @NgModule({
   declarations: [
@@ -36,11 +35,10 @@ import { AuthGuard } from './_helpers/auth.guard';
     AppRoutingModule,
     HttpClientModule,
     ReactiveFormsModule,
+    EmployeesModule,
   ],
   providers: [
-    AuthGuard,
-    {provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
-    {provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }
+    {provide: HTTP_INTERCEPTORS, useClass: TokensInterceptor, multi: true},
     ],
   bootstrap: [AppComponent]
 })

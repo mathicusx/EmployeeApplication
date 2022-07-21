@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, map, Observable } from 'rxjs';
+import { BehaviorSubject, catchError, defer, delay, filter, map, Observable, of, pipe, shareReplay, take, tap } from 'rxjs';
 import { ApiService } from './api.service';
 import { User } from '../_models/user.model';
 import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { JwtHelperService } from '@auth0/angular-jwt';
+import { HttpClient, HttpResponse } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
 
 
 
@@ -11,40 +13,74 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root'
 })
 export class AuthService {
-  private userSubject: BehaviorSubject<User | null>;
-  public user: Observable<User | null>;
 
-  constructor(
+ constructor(
+    private http : HttpClient,
     private router: Router,
     private apiService: ApiService,
-  ){
-    this.userSubject = new BehaviorSubject<User | null >(JSON.parse(localStorage.getItem('user')!));
-    this.user = this.userSubject.asObservable();
-  }
+  ){}
 
-  public get userValue(): User | null{
-    if(this.userSubject.value?.accessToken !== 'undefined'){
-            return this.userSubject.value;
-
-    }
-    return null
-    
-    
-  }
-
+  
   onLogin(email: string, password: string){
     return this.apiService.loginRequest(email, password)
-    .pipe(map(user => {
-      localStorage.setItem('user', JSON.stringify(user));
-      this.userSubject.next(user);
-      return user;
-    }));
+    .pipe(
+      shareReplay(),
+      tap((res: HttpResponse<any>) => {
+        this.setSession(res.body.accessToken, res.body.refreshToken)
+      })
+    )
+    
   }
 
-  onLogout(){
-    localStorage.removeItem('user');
-    this.userSubject.next(null);
-    this.router.navigate(['/']);
+  logout(){
+    this.removeSession();
+    this.router.navigate(['/login']);
   }
+
+   getNewAccessToken(): Observable<any>{
+    const refreshToken = localStorage.getItem('refreshToken');
+    return this.http.get(`${environment.apiServer}/auth/access_token?refresh_token=${refreshToken}`,
+    {
+      headers: {
+        'refreshToken': this.getRefreshToken()!,
+      },
+      observe: 'response'
+    }).pipe(
+      tap((res: HttpResponse<any>) => {
+          this.setAccessToken(res.body.accessToken);
+
+          const accesToken = res.body.accessToken;
+          const refreshToken = res.body.refreshToken;
+
+          localStorage.setItem('accessToken', accesToken);
+          localStorage.setItem('refreshToken', refreshToken);
+      })
+    )
+   }
+      
+
+   setSession(accessToken: string, refreshToken: string){
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
+  }
+   removeSession(){
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+  }
+
+   getAccessToken(){
+    return localStorage.getItem('accessToken');
+  }
+   getRefreshToken(){
+    return localStorage.getItem('refreshToken');
+  }
+   setAccessToken(accessToken: string){
+    localStorage.setItem('accessToken', accessToken)
+  }
+   setRefreshToken(refreshToken: string){
+    localStorage.setItem('refreshToken', refreshToken)
+  }
+
+
 
 }

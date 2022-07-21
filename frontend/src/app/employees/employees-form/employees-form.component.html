@@ -1,27 +1,28 @@
-<!-- <div class="container">
-    <div [hidden]="submitted">
-        <form (ngSubmit)="onSubmit()" #employeeForm="ngForm">
-            <div class="form-group">
-                <label for="name">Name</label>
-                <input type="text" class="form-control" id="name"
-                required [([(ngModel)]="model.name")] name="name"
-                #name="ngModel">
-                <div [hidden]="name.valid || name.pristine"
-                class="alert alert-danger">
-                Name is Required
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="text" class="form-control" id="email"
-                required [([(ngModel)]="model.name")] name="email"
-                #email="ngModel">
-                <div [hidden]="email.valid || email.pristine"
-                class="alert alert-danger">
-                Email is Required
-                </div>
-            </div>
-        </form>
-    </div>
-</div> -->
-<p>Employee Form works!</p>
+
+<form [formGroup]="employeeForm" (ngSubmit)="onSubmit()">
+    <h2>Employee</h2>
+    <div  class="form-group">
+    <input class="form-control" id="name" type="text" formControlName="name" placeholder="Name">
+
+    <input class="form-control" id="email" type="email" formControlName="email" placeholder="Email">
+
+    <input class="form-control" id="address" type="text" formControlName="address" placeholder="Address">
+</div>
+    <h2>Company</h2>
+   <div formGroupName="company" class="form-group">
+    
+    <input class="form-control" id="companyName" type="text" formControlName="name" placeholder="Company Name">
+
+    <input class="form-control" id="department" type="text" formControlName="department" placeholder="Department">
+
+    <input class="form-control" id="position" type="text" formControlName="position" placeholder="Position">
+
+    <input class="form-control" id="salary" type="number" formControlName="salary" placeholder="Salary">
+   </div> 
+   <div class="form-group">
+    <button class="btn btn-primary">
+        <span>Add Employee</span>
+    </button>
+   </div>
+</form>
+

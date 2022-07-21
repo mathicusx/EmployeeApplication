@@ -15,7 +15,6 @@ import { LoginDto } from './dto/login-dto';
 import { TokenService } from './token.service';
 import { AuthService } from './auth.service';
 import { LoginResponseDto } from './dto/login-response.dto';
-import { GrantType } from './dto/grant-types.dto';
 import { NotFoundError } from 'rxjs';
 import { ExtractJwt } from 'passport-jwt';
 import { User } from 'src/shared/user.decorator';
@@ -42,13 +41,11 @@ export class AuthController {
   @Get('access_token')
   async token(
     @Req() req,
-    @Query('grant_type') grantType: GrantType,
     @Query('refresh_token') refreshToken?: string,
   ): Promise<LoginResponseDto> {
     let res: LoginResponseDto;
 
-    switch (grantType) {
-      case GrantType.RefreshToken:
+    
         try {
           const oldAccessToken = ExtractJwt.fromAuthHeaderAsBearerToken()(req);
           
@@ -56,7 +53,7 @@ export class AuthController {
             refreshToken,
             oldAccessToken,
            
-          );
+        );
         } catch (error) {
           if (error instanceof NotFoundError) {
             throw new HttpException('invalid_grant catch', HttpStatus.BAD_REQUEST);
@@ -65,10 +62,7 @@ export class AuthController {
         }
         return res;
 
-      default:
-       
-        throw new HttpException('invalid_grant default', HttpStatus.BAD_REQUEST);
-    }
+
   }
   @Post('logout')
   @HttpCode(200)

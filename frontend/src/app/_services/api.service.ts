@@ -7,9 +7,7 @@ import { environment } from "src/environments/environment";
     providedIn: 'root'
   })
 export class ApiService {
-    // CONNECT FRONTEND TO BACKEND
    
-
     constructor(private httpService: HttpClient) {}
     
      // GET API EXAMPLE localhost/3333/api
@@ -29,7 +27,7 @@ export class ApiService {
 
         return  this.httpService.post<any>(url, {
             email, password
-        });
+        },{observe: 'response'});
     }
 
     

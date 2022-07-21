@@ -1,3 +1,4 @@
+import { HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -26,7 +27,7 @@ export class LoginComponent implements OnInit {
     
   ) {
     // if user already logged in redirect 
-    if (this.authService.userValue) {
+    if (this.authService.getAccessToken()) {
       this.router.navigate(['/']);
     }
    }
@@ -65,4 +66,5 @@ export class LoginComponent implements OnInit {
             })
                
   }
+  
 }

@@ -160,7 +160,7 @@ export class TokenService {
      return {
        Key: process.env.JWT_PRIVATE_KEY,
        AccessTokenTtl: parseInt(process.env.ACCESS_TOKEN_TTL, 10) || 10, // 5m
-       RefreshTokenTtl: parseInt(process.env.ACCESS_TOKEN_TTL, 10) || 30, // 30 Days
+       RefreshTokenTtl: parseInt(process.env.ACCESS_TOKEN_TTL, 10) || 10, // 30 Days
      };
      
  }

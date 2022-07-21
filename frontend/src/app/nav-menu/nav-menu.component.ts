@@ -1,10 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
-import { User } from '../_models/user.model';
 import { AlertsService } from '../_services/alerts.service';
 import { AuthService } from '../_services/auth.service';
-import { UserService } from '../_services/user.service';
 
 @Component({
   selector: 'app-nav-menu',
@@ -32,8 +29,9 @@ export class NavMenuComponent implements OnInit {
   }
 
   isUserAuthenticated() {
-    const token = this.authService.userValue
-    if(token && !this.jwtHelper.isTokenExpired(token.accessToken)){
+    
+    const token = this.authService.getAccessToken()
+    if(token && !this.jwtHelper.isTokenExpired(token)){
       return true;
     }else{
       return false;
@@ -41,9 +39,8 @@ export class NavMenuComponent implements OnInit {
   }
 
   logout(){
-    this.authService.onLogout();
+    this.authService.logout();
     this.alert.success('You have Logged out');
-    window.location.reload();
   }
 
 }

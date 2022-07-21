@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';  
 import { Employee } from 'src/app/_models/employee.model';
+import { FormGroup, FormControl } from '@angular/forms';
 
 
 @Component({
@@ -11,6 +11,17 @@ import { Employee } from 'src/app/_models/employee.model';
 export class EmployeesFormComponent{
   submitted= false;
 
+  employeeForm = new FormGroup({
+    name: new FormControl(''),
+    email: new FormControl(''),
+    address: new FormControl(''),
+    company: new FormGroup({
+      name: new FormControl(' '),
+      department: new FormControl(' '),
+      position: new FormControl(' '),
+      salary: new FormControl(' ')
+    })
+  });
   
   model = new Employee();
 
