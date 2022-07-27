@@ -5,12 +5,12 @@ import { EmployeesService } from './employee.service';
 import { DatabaseModule } from 'src/core/database/database.module';
 import { EmployeesController } from './employee.controller';
 
-
+import { companiesProviders } from './company/company.providers';
 
 @Module({
-    imports: [DatabaseModule],
-    controllers: [EmployeesController],
-    providers: [EmployeesService, ...employeeProviders],
-    exports: []
+  imports: [DatabaseModule,],
+  controllers: [EmployeesController],
+  providers: [ EmployeesService, ...employeeProviders, ...companiesProviders],
+  exports: [],
 })
 export class EmployeeModule {}

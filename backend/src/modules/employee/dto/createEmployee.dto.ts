@@ -1,7 +1,8 @@
-import { IsEmail, IsNotEmpty, IsNumber, IsString, MinLength } from "class-validator"
+import { IsEmail, IsNotEmpty, IsString, MinLength, ValidateNested } from "class-validator"
+import { Company } from "src/modules/employee/company/company.entity";
 
 export class CreateEmployeeDto{
-    
+
     @IsString()
     @IsNotEmpty()
     @MinLength(3)
@@ -17,22 +18,15 @@ export class CreateEmployeeDto{
     @MinLength(3) 
     readonly address: string;
 
-    @IsString()
-    @IsNotEmpty() 
-    @MinLength(3) 
-    readonly company: string;
+    @IsNotEmpty()
+    readonly companyId: number;
 
-    @IsString()
-    @IsNotEmpty() 
-    @MinLength(3) 
-    readonly department: string;
+
+    @ValidateNested()
+    readonly company:Company;
+
     
-    @IsString()
-    @IsNotEmpty() 
-    @MinLength(3) 
-    readonly position: string;
-    
-    @IsNumber()
-    @IsNotEmpty() 
-    readonly salary: number;
+
+
+
 }

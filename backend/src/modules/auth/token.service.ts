@@ -36,21 +36,17 @@ export class TokenService {
         oldAccessToken: string,   
     ): Promise<LoginResponseDto>{
         try {   
-            console.log(oldAccessToken, 'old access token in method');
-            console.log(refreshToken, 'refresh token value ');
+           
            const token = await this.refreshTokensRepository.findOne({where: {value: refreshToken}})
-           console.log(token.value, ' this is the value');
-           console.log( token, 'get access token from refresh token value');
+
 
            const currentDate = new Date();
            if(!token){
-            console.log(token,'Token');
-            console.log(refreshToken, 'refresh token value ');
+
             throw new HttpException('Refresh Token not found', HttpStatus.NOT_FOUND)
            }
            if(token.expiresAt < currentDate){
-            console.log(token,'Token');
-            console.log(refreshToken, 'refresh token value ');
+
             throw new HttpException('Refresh Token Expired', HttpStatus.CONFLICT);
             
            }
@@ -61,7 +57,6 @@ export class TokenService {
             sub: oldPayload.sub,
            };
            const accessToken = await this.createAccessToken(payload);
-           console.log(accessToken, 'GET ACCESS TOKEN FROM REFRESH TOKEN, THIS IS ACCESS TOKEN');
            // remove old refresh token and generate a new one
            await this.refreshTokensRepository.destroy({where: {id: token.id}});
 
@@ -89,7 +84,6 @@ export class TokenService {
             accessToken: signPayload,
             expiresIn: expires,
         };
-        console.log(token,'createAccessToken');
         return token;
     }
 
@@ -117,8 +111,7 @@ export class TokenService {
 
     // remove a refresh token, and invalidate all access token associated with user
     async deleteRefreshToken(userId: string, value: string){
-        console.log(userId,'USER ID');
-        console.log(value, 'DELETE REFRESH TOKEN VALUE');
+
         await this.refreshTokensRepository.destroy({where: {value: userId}});
         await this.revokeTokenForUser(userId);
     }

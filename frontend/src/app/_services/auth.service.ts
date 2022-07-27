@@ -1,11 +1,9 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, catchError, defer, delay, filter, map, Observable, of, pipe, shareReplay, take, tap } from 'rxjs';
-import { ApiService } from './api.service';
-import { User } from '../_models/user.model';
+import {Observable, shareReplay, tap } from 'rxjs';
 import { Router } from '@angular/router';
-import { JwtHelperService } from '@auth0/angular-jwt';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
+import { ApiService } from './api.service';
 
 
 
@@ -16,8 +14,8 @@ export class AuthService {
 
  constructor(
     private http : HttpClient,
-    private router: Router,
     private apiService: ApiService,
+    private router: Router,
   ){}
 
   
@@ -26,7 +24,9 @@ export class AuthService {
     .pipe(
       shareReplay(),
       tap((res: HttpResponse<any>) => {
+        console.log(res);
         this.setSession(res.body.accessToken, res.body.refreshToken)
+        console.log(res);
       })
     )
     
@@ -47,13 +47,15 @@ export class AuthService {
       observe: 'response'
     }).pipe(
       tap((res: HttpResponse<any>) => {
+        console.log(res);
+         if(res.body.accessToken === null){
+          return;
+         }
           this.setAccessToken(res.body.accessToken);
 
-          const accesToken = res.body.accessToken;
+          const accessToken = res.body.accessToken;
           const refreshToken = res.body.refreshToken;
-
-          localStorage.setItem('accessToken', accesToken);
-          localStorage.setItem('refreshToken', refreshToken);
+          this.setSession(accessToken, refreshToken)
       })
     )
    }
@@ -70,6 +72,7 @@ export class AuthService {
 
    getAccessToken(){
     return localStorage.getItem('accessToken');
+    
   }
    getRefreshToken(){
     return localStorage.getItem('refreshToken');
@@ -80,6 +83,7 @@ export class AuthService {
    setRefreshToken(refreshToken: string){
     localStorage.setItem('refreshToken', refreshToken)
   }
+
 
 
 

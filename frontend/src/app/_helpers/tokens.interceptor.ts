@@ -1,11 +1,12 @@
-import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from "@angular/common/http";
+import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { catchError, Observable, throwError, tap, switchMap, EMPTY, empty} from "rxjs";
+import { catchError, Observable, throwError, tap, switchMap, EMPTY, empty, delay} from "rxjs";
 import { AuthService } from "../_services/auth.service";
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+  })
 export class TokensInterceptor implements HttpInterceptor{
-
 
     constructor(private authService: AuthService){}
     
@@ -38,13 +39,17 @@ export class TokensInterceptor implements HttpInterceptor{
         ) as Observable<HttpEvent<any>>;
     }
 
-    addAuthHeader(req: HttpRequest<any>){
+    addAuthHeader(req: HttpRequest<any>){  
+
+      
         const token = this.authService.getAccessToken();
-        console.log(token, 'NEW ACCESS TOKEN');
-        if(token) {
+        //console.log(token, 'NEW ACCESS TOKEN');
+        if(token !== null) {
             return req.clone({
                 setHeaders: {Authorization: `Bearer ${token}`}
             })
+        }else{
+
         }
         return req;
     }
@@ -56,5 +61,6 @@ export class TokensInterceptor implements HttpInterceptor{
             })
         )
     }
+   
 
 }

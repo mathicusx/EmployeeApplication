@@ -1,39 +1,34 @@
-import { Table, Column, Model,DataType, IsEmail, Unique} from "sequelize-typescript";
+import { Table, Column, Model, IsEmail, Unique, AutoIncrement, PrimaryKey, ForeignKey, BelongsTo} from "sequelize-typescript";
+import { Company } from "./company/company.entity";
 
 @Table({
     tableName: 'employee',
 })
-export class Employee extends Model<Employee> {
-  
+export class Employee extends Model {
+
+    @PrimaryKey
+    @Unique
+    @AutoIncrement
+    @Column
+    id: number;
+
     @Unique
     @Column
-    name: string
+    name: string;
 
     @Unique
     @IsEmail
     @Column
-    email: string
+    email: string;
     
-    @Column({
-        type: DataType.STRING,
-        allowNull: false,
-    })
-    address: string
-
     @Column
-    company: string;
+    address: string;
 
+    @ForeignKey(() => Company,)
     @Column
-    department: string;
+    companyId: number;
 
-    @Column
-    position: string;
-
-    @Column
-    salary: number;
-    
-
-
-   
-
+    @BelongsTo(() => Company,{ onDelete: 'CASCADE'})
+    company:Company
 }
+

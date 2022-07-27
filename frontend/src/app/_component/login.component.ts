@@ -3,7 +3,6 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators'
-import { User } from 'src/app/_models/user.model';
 
 import { AlertsService } from 'src/app/_services/alerts.service';
 import { AuthService } from '../_services/auth.service';
@@ -16,7 +15,6 @@ export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   loading = false;
   submitted = false;
-  user: User;
 
   constructor(
     private formBuilder: FormBuilder,

@@ -1,4 +1,6 @@
-import { IsEmail, IsNumber, IsOptional, IsString, Length } from "class-validator";
+import { IsEmail, IsOptional, IsString, Length, ValidateNested } from "class-validator";
+import { Company } from "src/modules/employee/company/company.entity";
+
 
 export class UpdateEmployeeDto {
     @IsOptional() 
@@ -16,28 +18,20 @@ export class UpdateEmployeeDto {
     @IsString()
     readonly address: string;
 
-    
-    @IsString()
-    @IsOptional() 
-    @IsString()
-    readonly company: string;
+    @IsOptional()
+    @ValidateNested()
+    readonly company: Company;
 
-    
-    @IsString()
-    @IsOptional() 
-    @IsString()
-    readonly department: string;
+    // constructor(employee: EmployeeDto) {
+    //     this.name = employee.name;
+    //     this.email = employee.email;
+    //     this.address = employee.address;
+    //     this.company.companyName = employee.company.companyName;
+    //     this.company.department = employee.company.department;
+    //     this.company.position = employee.company.position;
+    //     this.company.salary = employee.company.salary;
 
-    
-    @IsString()
-    @IsOptional() 
-    @IsString()
-    readonly position: string;
-    
-    
-    @IsNumber()
-    @IsOptional() 
-    @IsNumber()
-    readonly salary: number;
+        
+    // }
 
 }

@@ -1,9 +1,11 @@
-import {Company} from "./company.model"
+import { Company } from "./company.model";
 
-export class Employee {
+export interface Employee{
     id: number;
     name: string;
     email: string;
     address: string;
     company: Company;
 }
+
+

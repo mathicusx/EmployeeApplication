@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http"
-import { Observable } from "rxjs";
+import { catchError, Observable, throwError } from "rxjs";
 import { environment } from "src/environments/environment";
 
 @Injectable({
@@ -8,7 +8,11 @@ import { environment } from "src/environments/environment";
   })
 export class ApiService {
    
-    constructor(private httpService: HttpClient) {}
+    private formatErrors(error: any) {
+        return  throwError(() => error.error);
+      }
+
+    constructor(private http: HttpClient) {}
     
      // GET API EXAMPLE localhost/3333/api
     get apiUrl(): string {
@@ -25,10 +29,19 @@ export class ApiService {
     loginRequest(email: string, password: string): Observable<any>{
         const url = this.apiEndpoint('auth/login');
 
-        return  this.httpService.post<any>(url, {
+        return  this.http.post<any>(url, {
             email, password
         },{observe: 'response'});
     }
+
+    post(path: string, body: Object = {}): Observable<any> {
+        return this.http.post(
+          `${environment.apiServer}${path}`,
+          JSON.stringify(body)
+        ).pipe(catchError(this.formatErrors));
+      }
+
+    // EMPLOYEE API REQUESTS
 
     
 }
